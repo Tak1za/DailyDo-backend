@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/Tak1za/DailyDo-backend/internal/errors"
@@ -31,24 +30,14 @@ func RegisterHandlers(r *gin.RouterGroup, service Service) {
 func (res resource) get(c *gin.Context) {
 	var uri uri
 	if err := c.ShouldBindUri(&uri); err != nil {
-		log.Println(ErrInvalidParameters.Wrap(err))
-		generateResponse(c, Task{}, http.StatusBadRequest, ErrInvalidParameters)
+		c.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidParameters.Error()})
 		return
 	}
 
 	task := res.service.Get(c, uri.ID)
-	generateResponse(c, task, http.StatusOK, nil)
-}
-
-func generateResponse(c *gin.Context, data Task, code int, err error) {
-	if err != nil {
-		c.JSON(code, gin.H{"data": responseResult{
-			Task:  data,
-			Error: err.Error(),
-		}})
-	} else {
-		c.JSON(code, gin.H{"data": responseResult{
-			Task: data,
-		}})
+	if (Task{}) == task {
+		c.Status(http.StatusNotFound)
+		return
 	}
+	c.JSON(http.StatusOK, gin.H{"data": task})
 }
