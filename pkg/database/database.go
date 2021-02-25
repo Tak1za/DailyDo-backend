@@ -1,18 +1,15 @@
 package database
 
-import (
-	"database/sql"
-)
+import "gorm.io/gorm"
 
-// Store interface
-type Store interface {
-	Get(ID int) (string, error)
+// DB struct
+type DB struct {
+	DB *gorm.DB
 }
 
-type store struct {
-	db *sql.DB
-}
-
-func (d *store) Get(ID int) (string, error) {
-	return "task1", nil
+// Initiate function initiates the database
+func Initiate(d *gorm.DB) *DB {
+	return &DB{
+		DB: d,
+	}
 }
